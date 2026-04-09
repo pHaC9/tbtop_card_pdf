@@ -266,6 +266,68 @@ def Start_Edit(event=None):
     is_editing = True
     Show_Copies_Entry()
 
+def Toggle_Edit(event=None):
+    global is_editing
+
+    selected = tree.selection()
+    if not selected:
+        return
+
+    if is_editing:
+        Commit_Copies_Entry(move_next=False)
+        is_editing = False
+    else:
+        is_editing = True
+        Show_Copies_Entry()
+
+def Move_Selection(delta):
+    global last_selected_item
+
+    children = tree.get_children()
+    if not children:
+        return
+
+    selected = tree.selection()
+    if not selected:
+        tree.selection_set(children[0])
+        return
+
+    current = selected[0]
+    idx = children.index(current)
+
+    new_idx = max(0, min(len(children) - 1, idx + delta))
+    new_item = children[new_idx]
+
+    tree.selection_set(new_item)
+    tree.focus(new_item)
+    tree.see(new_item)
+    last_selected_item = new_item
+
+    if is_editing:
+        Show_Copies_Entry()
+
+def Change_Value(delta):
+    selected = tree.selection()
+    if not selected:
+        return
+
+    item = selected[0]
+    current = tree.set(item, "copies")
+
+    try:
+        value = int(current)
+    except:
+        value = 0
+
+    value = max(0, value + delta)
+
+    tree.set(item, "copies", value)
+    guiFunctions.Update_Card_Copies(item, value)
+
+    if is_editing:
+        copies_entry.delete(0, "end")
+        copies_entry.insert(0, str(value))
+
 def Commit_Copies_Entry(event=None, move_next=True):
     global last_selected_item, is_editing
 
@@ -349,9 +411,19 @@ tree.bind("<Configure>", Show_Copies_Entry)
 tree.bind("<MouseWheel>", Show_Copies_Entry)
 tree.bind("<MouseWheel>", On_Scroll)
 
-copies_entry.bind("<Return>", lambda e: Commit_Copies_Entry(move_next=True))
-copies_entry.bind("<FocusOut>", lambda e: Commit_Copies_Entry(move_next=False))
+tree.bind("<Return>", Toggle_Edit)
 
+tree.bind("<Up>", lambda e: Move_Selection(-1))
+tree.bind("<Down>", lambda e: Move_Selection(1))
+tree.bind("<Right>", lambda e: Change_Value(+1))
+tree.bind("<Left>", lambda e: Change_Value(-1))
+
+copies_entry.bind("<FocusOut>", lambda e: Commit_Copies_Entry(move_next=False))
+copies_entry.bind("<Up>", lambda e: Move_Selection(-1))
+copies_entry.bind("<Down>", lambda e: Move_Selection(1))
+copies_entry.bind("<Right>", lambda e: Change_Value(+1))
+copies_entry.bind("<Left>", lambda e: Change_Value(-1))
+copies_entry.bind("<Return>", lambda e: Toggle_Edit())
 
 frame_tree_container.pack(fill=BOTH, expand=True)
 
