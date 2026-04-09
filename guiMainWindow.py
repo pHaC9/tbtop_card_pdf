@@ -266,7 +266,7 @@ def Start_Edit(event=None):
     is_editing = True
     Show_Copies_Entry()
 
-def Commit_Copies_Entry(event=None):
+def Commit_Copies_Entry(event=None, move_next=True):
     global last_selected_item, is_editing
 
     if not last_selected_item:
@@ -278,6 +278,11 @@ def Commit_Copies_Entry(event=None):
 
     tree.set(last_selected_item, "copies", value)
     guiFunctions.Update_Card_Copies(last_selected_item, int(value))
+
+    if not move_next:
+        copies_entry.place_forget()
+        is_editing = False
+        return
 
     children = tree.get_children()
     try:
@@ -295,8 +300,10 @@ def Commit_Copies_Entry(event=None):
     Show_Copies_Entry()
 
 def On_Tree_Click(event):
-    Commit_Copies_Entry()
+    Commit_Copies_Entry(move_next=False)
 
+def On_Scroll(event=None):
+    copies_entry.place_forget()
 
 style = ttk.Style()
 style.configure(
@@ -340,9 +347,10 @@ tree.bind("<Double-1>", Start_Edit)
 tree.bind("<Button-1>", On_Tree_Click, add="+")
 tree.bind("<Configure>", Show_Copies_Entry)
 tree.bind("<MouseWheel>", Show_Copies_Entry)
+tree.bind("<MouseWheel>", On_Scroll)
 
-copies_entry.bind("<Return>", lambda e: Commit_Copies_Entry())
-copies_entry.bind("<FocusOut>", lambda e: Commit_Copies_Entry())
+copies_entry.bind("<Return>", lambda e: Commit_Copies_Entry(move_next=True))
+copies_entry.bind("<FocusOut>", lambda e: Commit_Copies_Entry(move_next=False))
 
 
 frame_tree_container.pack(fill=BOTH, expand=True)
@@ -357,6 +365,7 @@ scrollbar_y = ttk.Scrollbar(
 tree.configure(yscrollcommand=scrollbar_y.set)
 
 scrollbar_y.pack(side=RIGHT, fill=Y)
+scrollbar_y.config(command=lambda *args: (tree.yview(*args), On_Scroll()))
 tree.pack(side=LEFT, fill=BOTH, expand=True)
 
 def _on_mousewheel(event):
