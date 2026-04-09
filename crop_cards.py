@@ -7,7 +7,10 @@ BG_COLOR = (255, 255, 255, 255)
 def crop_cards(image, card_count, card_dim, a4_dim, a4_pix):
     output = []
 
-    mm_to_px = a4_pix[0] / a4_dim[0]
+    img_w, img_h = image.size
+
+    card_w = img_w / card_count[0]
+    card_h = img_h / card_count[1]
 
     card_ix = 0
 
@@ -16,12 +19,13 @@ def crop_cards(image, card_count, card_dim, a4_dim, a4_pix):
         c_row = int(card_ix / card_count[0])
 
         # crop coords
-        c_x0 = int(c_col * card_dim[0] * mm_to_px)
-        c_y0 = int(c_row * card_dim[1] * mm_to_px)
-        c_x1 = c_x0 + int(card_dim[0] * mm_to_px)
-        c_y1 = c_y0 + int(card_dim[1] * mm_to_px)
+        c_x0 = int(c_col * card_w)
+        c_y0 = int(c_row * card_h)
+        c_x1 = int((c_col + 1) * card_w)
+        c_y1 = int((c_row + 1) * card_h)
 
         card = image.crop((c_x0, c_y0, c_x1, c_y1))
+        
         output.append(card)
 
         card_ix += 1

@@ -47,7 +47,7 @@ def composite(cards, card_dim, a4_dim, a4_pix, margin_mm, padding_mm, rotate=Fal
             continue
 
         im_out.paste(cards[card_ix], (p_x0, p_y0))
-
+        
         p_col += 1
         card_ix += 1
 

@@ -16,6 +16,7 @@ def resize(image, card_count, card_dim, maintain):
         height = int(card_dim[1] * card_count[1] * c)
 
     new_size = (width, height)
+
     return image.resize(new_size, Image.BICUBIC)
 
 if __name__ == "__main__":

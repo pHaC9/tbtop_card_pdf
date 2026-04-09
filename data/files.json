@@ -1,7 +1,7 @@
 {
-    "game": "love letter",
-    "a4_pix": [2480, 3508],
-    "a4_dim": [210, 297],
+    "game": "teste",
+    "a3_pix": [3508, 4960],
+    "a3_dim": [297, 420],
     "outputPath": "data\\exported\\",
     "save_as_pdf": true,
     "card_files": [
